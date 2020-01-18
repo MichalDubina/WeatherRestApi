@@ -17,6 +17,16 @@ public class LocationService {
     }
 
     public Location add(Location location) {
+        locationRepository.findByPlaceNameAndLongiAndLat(
+                location.getPlaceName(),
+                location.getLongi(),
+                location.getLat())
+                .ifPresent(l -> {
+                    throw new LocationAlreadyExistException(
+                            location.getPlaceName(),
+                            location.getLongi(),
+                            location.getLat());
+                });
         return locationRepository.save(location);
     }
 
@@ -26,7 +36,7 @@ public class LocationService {
 
     public Location remove(String id) {
         Location location = locationRepository.findById(id)
-                .orElseThrow(() -> {
+                .<NoSuchElementException>orElseThrow(() -> {
                     throw new NoSuchElementException();
                 });
         locationRepository.deleteById(id);
